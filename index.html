@@ -24,32 +24,47 @@
         </div>
         <div class="btm">
             <div class="btn-area">
-                <button type="button" class="firstrow"> 
+                <button type="button" class=" btn firstrow">
                     <i class="fa-solid fa-delete-left"></i>
-                 </button>
-                <button type="button" class="firstrow"> AC</button>
-                <button type="button" class="firstrow"> % </button>
-                <button type="button" class="func"> ÷ </button>
-                <button type="button" class="normal"> 7 </button>
-                <button type="button" class="normal"> 8 </button>
-                <button type="button" class="normal"> 9 </button>
-                <button type="button" class="func"> × </button>
-                <button type="button" class="normal"> 4 </button>
-                <button type="button" class="normal"> 5 </button>
-                <button type="button" class="normal"> 6 </button>
-                <button type="button" class="func"> - </button>
-                <button type="button" class="normal"> 1 </button>
-                <button type="button" class="normal"> 2 </button>
-                <button type="button" class="normal"> 3 </button>
-                <button type="button" class="func"> + </button>
-                <button type="button" class="normal"> 
-                    <i class="fa-solid fa-plus-minus"></i> 
                 </button>
-                <button type="button" class="normal"> 0 </button>
-                <button type="button" class="normal"> . </button>
-                <button type="button" class="func"> = </button>
+                <button type="button" class=" btn firstrow"> AC</button>
+                <button type="button" class=" btn firstrow"> % </button>
+                <button type="button" class=" btn func"> ÷ </button>
+                <button type="button" class=" btn normal"> 7 </button>
+                <button type="button" class=" btn normal"> 8 </button>
+                <button type="button" class=" btn normal"> 9 </button>
+                <button type="button" class=" btn func"> × </button>
+                <button type="button" class=" btn normal"> 4 </button>
+                <button type="button" class=" btn normal"> 5 </button>
+                <button type="button" class=" btn normal"> 6 </button>
+                <button type="button" class=" btn func"> - </button>
+                <button type="button" class=" btn normal"> 1 </button>
+                <button type="button" class=" btn normal"> 2 </button>
+                <button type="button" class=" btn normal"> 3 </button>
+                <button type="button" class=" btn func"> + </button>
+                <button type="button" class=" btn normal">
+                    <i class="fa-solid fa-plus-minus"></i>
+                </button>
+                <button type="button" class="btn normal"> 0 </button>
+                <button type="button" class="btn normal"> . </button>
+                <button type="button" class="btn func"> = </button>
             </div>
         </div>
     </div>
+
+    <script>
+        // 1.可以輸入第一個數字
+        // 綁監聽事件 => 一個一個綁
+        // 先抓取全部再跑迴圈綁定陣列
+        const btns = document.querySelectorAll('.num');
+        for (let i = 0; i < btns.length; i++) {
+            console.log('敲敲門');
+            console.log(btns[i].textContent);
+        }
+        // 2.再按下輸入符號
+        // 3.可以輸入第二個數字
+        // 4.按下等於計算結果
+    </script>
 </body>
+
 </html>
