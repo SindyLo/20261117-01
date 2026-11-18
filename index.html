@@ -53,6 +53,9 @@
     </div>
 
     <script>
+        let MAXIMUM_NUMBER = 999999999999;
+        let MAX_FONT_SIZE = 70;
+        let MIN_FONT_SIZE = 24;
 
        
         let screen = document.querySelector('.result-text');
@@ -64,8 +67,35 @@
         let justEqual = false;
         let hasError = false;
 
-        function showNumber() {
-            screen.textContent = num_temp;
+         function isTooWide() {
+            let resultBox = document.querySelector('.result');
+            let availableWidth = resultBox.clientWidth - 32;
+            return screen.scrollWidth > availableWidth;
+        }
+
+       function showNumber() {
+            let number = Number(num_temp);
+            let displayText = num_temp;
+            if (Number.isFinite(number) && Math.abs(number) > MAXIMUM_NUMBER) {
+                displayText = number.toExponential(5);
+            }
+            screen.textContent = displayText;
+            let fontSize = MAX_FONT_SIZE;
+            screen.style.fontSize = fontSize + 'px';
+            while (isTooWide() && fontSize > MIN_FONT_SIZE) {
+                fontSize = fontSize - 1;
+                screen.style.fontSize = fontSize + 'px';
+            }
+            if (isTooWide() && Number.isFinite(number)) {
+                let digits = 5;
+                while (digits >= 0) {
+                    screen.textContent = number.toExponential(digits);
+                    if (!isTooWide()) {
+                        break;
+                    }
+                    digits = digits - 1;
+                }
+            }
         }
 
         function clearAll() {
@@ -113,6 +143,7 @@
         function showAnswer(answer) {
             if (!Number.isFinite(answer)) {
                 screen.textContent = '錯誤';
+                screen.style.fontSize = MAX_FONT_SIZE + 'px';
                 hasError = true;
                 return false;
             }
@@ -208,6 +239,8 @@
             showNumber();
         }
 
+         window.addEventListener('resize', showNumber);
+
         for (let i = 0; i < buttons.length; i++) {
             buttons[i].addEventListener('click', function () {
                 let value = buttons[i].textContent.trim();
@@ -230,6 +263,7 @@
                 }
             });
         }
+        showNumber();
     </script>
 </body>
 
