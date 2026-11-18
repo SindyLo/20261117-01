@@ -53,17 +53,312 @@
     </div>
 
     <script>
-        // 1.可以輸入第一個數字
-        // 綁監聽事件 => 一個一個綁
-        // 先抓取全部再跑迴圈綁定陣列
-        const btns = document.querySelectorAll('.num');
-        for (let i = 0; i < btns.length; i++) {
-            console.log('敲敲門');
-            console.log(btns[i].textContent);
+
+        // 取得原本 HTML 中顯示數字的區域。
+        let screen = document.querySelector('.result-text');
+        // 取得原本 HTML 中所有的計算機按鈕。
+        let buttons = document.querySelectorAll('.btn-area button');
+        // 暫存目前正在輸入的數字；使用文字才能逐位加入數字和小數點。
+        let num_temp = '0';
+        // 記住前面已經計算好的數值。
+        let num_01 = 0;
+        // 記住上一個運算符號。
+        let num_symbol = '';
+        // 記住是否要從新數字開始輸入。
+        let newNumber = true;
+        // 記住上一個動作是否為按下等於。
+        let justEqual = false;
+        // 記住目前是否發生錯誤，例如除以零。
+        let hasError = false;
+
+        // 建立函式：把目前輸入的數字顯示到畫面上。
+        function showNumber() {
+            // 將暫存文字放進原本的結果區域。
+            screen.textContent = num_temp;
         }
-        // 2.再按下輸入符號
-        // 3.可以輸入第二個數字
-        // 4.按下等於計算結果
+
+        // 建立函式：清除所有計算資料。
+        function clearAll() {
+            // 把目前輸入的數字還原成 0。
+            num_temp = '0';
+            // 把前面計算好的數值清空。
+            num_01 = 0;
+            // 把運算符號清空。
+            num_symbol = '';
+            // 下一次按數字時重新開始輸入。
+            newNumber = true;
+            // 清除剛剛按過等於的紀錄。
+            justEqual = false;
+            // 清除錯誤狀態。
+            hasError = false;
+            // 更新畫面。
+            showNumber();
+        }
+
+        // 建立函式：輸入一個數字。
+        function inputNumber(number) {
+            // 如果前一次運算出錯，就先全部清除。
+            if (hasError) {
+                // 重新設定計算機。
+                clearAll();
+            }
+            // 如果剛按完等於，下一個數字代表開始新算式。
+            if (justEqual) {
+                // 清除上一個算式的資料。
+                clearAll();
+            }
+            // 如果應該輸入新數字，或目前只有 0。
+            if (newNumber || num_temp === '0') {
+                // 直接使用這次按下的數字。
+                num_temp = number;
+                // 後續按下的數字就要接在後面。
+                newNumber = false;
+            // 否則代表正在輸入同一個數字。
+            } else {
+                // 把新數字接在原本數字後面。
+                num_temp = num_temp + number;
+            }
+            // 更新畫面。
+            showNumber();
+        }
+
+        // 建立函式：計算兩個數字，並回傳答案。
+        function calculate(a, b, symbol) {
+            // 如果運算符號是加號。
+            if (symbol === '+') {
+                // 回傳相加的答案。
+                return a + b;
+            // 如果運算符號是減號。
+            } else if (symbol === '-') {
+                // 回傳相減的答案。
+                return a - b;
+            // 如果運算符號是乘號。
+            } else if (symbol === '×') {
+                // 回傳相乘的答案。
+                return a * b;
+            // 如果運算符號是除號。
+            } else if (symbol === '÷') {
+                // 如果第二個數字是 0，就不能除。
+                if (b === 0) {
+                    // 回傳特殊值，表示計算錯誤。
+                    return NaN;
+                }
+                // 回傳相除的答案。
+                return a / b;
+            }
+            // 沒有運算符號時，回傳目前的數字。
+            return b;
+        }
+
+        // 建立函式：把計算結果顯示出來。
+        function showAnswer(answer) {
+            // 如果答案不是正常的有限數字。
+            if (!Number.isFinite(answer)) {
+                // 在畫面上顯示錯誤訊息。
+                screen.textContent = '錯誤';
+                // 記錄錯誤狀態。
+                hasError = true;
+                // 告訴其他函式這次計算失敗。
+                return false;
+            }
+            // 將答案四捨五入到小數第十位，減少浮點數誤差。
+            answer = Number(answer.toFixed(10));
+            // 將數字轉成文字，方便繼續輸入或顯示。
+            num_temp = String(answer);
+            // 更新畫面。
+            showNumber();
+            // 告訴其他函式這次計算成功。
+            return true;
+        }
+
+        // 建立函式：處理加減乘除按鈕。
+        function inputSymbol(symbol) {
+            // 如果目前有錯誤，就不繼續計算。
+            if (hasError) {
+                // 結束這個函式。
+                return;
+            }
+            // 如果前面已經有運算符號，而且已輸入下一個數字。
+            if (num_symbol !== '' && newNumber === false) {
+                // 使用老師示範的 Number() 把文字轉成數字，再計算。
+                let answer = calculate(num_01, Number(num_temp), num_symbol);
+                // 如果計算失敗，就停止。
+                if (showAnswer(answer) === false) {
+                    // 結束這個函式。
+                    return;
+                }
+                // 把剛算好的答案當作下一次運算的第一個數字。
+                num_01 = answer;
+            // 如果前面沒有待處理的運算符號。
+            } else if (num_symbol === '') {
+                // 把目前畫面上的數字記起來。
+                num_01 = Number(num_temp);
+            }
+            // 記住這次按下的運算符號。
+            num_symbol = symbol;
+            // 下一個數字要重新輸入。
+            newNumber = true;
+            // 現在不是剛按完等於的狀態。
+            justEqual = false;
+        }
+
+        // 建立函式：處理等於按鈕。
+        function pressEqual() {
+            // 如果出錯、沒有運算符號，或尚未輸入第二個數字。
+            if (hasError || num_symbol === '' || newNumber) {
+                // 不進行計算。
+                return;
+            }
+            // 計算前面累積的結果與目前的數字。
+            let answer = calculate(num_01, Number(num_temp), num_symbol);
+            // 如果計算失敗，就停止。
+            if (showAnswer(answer) === false) {
+                // 結束函式。
+                return;
+            }
+            // 清除運算符號，避免下次重複計算。
+            num_symbol = '';
+            // 記住目前的計算結果。
+            num_01 = answer;
+            // 下一次輸入數字時重新開始。
+            newNumber = true;
+            // 記住剛按下等於。
+            justEqual = true;
+        }
+
+        // 建立函式：輸入小數點。
+        function inputDot() {
+            // 如果目前出錯，先清除。
+            if (hasError) {
+                // 重新設定計算機。
+                clearAll();
+            }
+            // 如果剛按完等於，就開始新算式。
+            if (justEqual) {
+                // 清除上一個算式。
+                clearAll();
+            }
+            // 如果要開始輸入新數字。
+            if (newNumber) {
+                // 小數從 0. 開始。
+                num_temp = '0.';
+                // 設定為正在輸入數字。
+                newNumber = false;
+            // 如果目前數字還沒有小數點。
+            } else if (num_temp.indexOf('.') === -1) {
+                // 在數字後面加上小數點。
+                num_temp = num_temp + '.';
+            }
+            // 更新畫面。
+            showNumber();
+        }
+
+        // 建立函式：切換正負號。
+        function changeSign() {
+            // 如果出錯就不處理。
+            if (hasError) {
+                // 結束函式。
+                return;
+            }
+            // 如果正準備輸入新數字。
+            if (newNumber && num_symbol !== '') {
+                // 先將新數字設為 0。
+                num_temp = '0';
+            }
+            // 把目前數字乘以 -1，改變正負號。
+            num_temp = String(Number(num_temp) * -1);
+            // 設定為正在輸入數字。
+            newNumber = false;
+            // 允許繼續計算。
+            justEqual = false;
+            // 更新畫面。
+            showNumber();
+        }
+
+        // 建立函式：把目前數字轉成百分比。
+        function percent() {
+            // 如果出錯就不處理。
+            if (hasError) {
+                // 結束函式。
+                return;
+            }
+            // 例如 25% 會變成 0.25。
+            num_temp = String(Number(num_temp) / 100);
+            // 設定為已經輸入數字。
+            newNumber = false;
+            // 更新畫面。
+            showNumber();
+        }
+
+        // 建立函式：刪除目前數字的最後一位。
+        function backspace() {
+            // 如果出錯就直接清除。
+            if (hasError) {
+                // 清除計算機。
+                clearAll();
+                // 結束函式。
+                return;
+            }
+            // 如果剛按完等於，先不刪除結果。
+            if (justEqual || newNumber) {
+                // 結束函式。
+                return;
+            }
+            // 如果數字只剩一位，或只剩負號加一位。
+            if (num_temp.length === 1 || (num_temp.length === 2 && num_temp.indexOf('-') === 0)) {
+                // 將數字還原成 0。
+                num_temp = '0';
+            // 否則還有其他位數。
+            } else {
+                // 刪除最後一個字元。
+                num_temp = num_temp.slice(0, -1);
+            }
+            // 更新畫面。
+            showNumber();
+        }
+
+        // 使用 for 迴圈，替每個按鈕設定點擊事件。
+        for (let i = 0; i < buttons.length; i++) {
+            // 當第 i 個按鈕被點擊時，執行以下函式。
+            buttons[i].addEventListener('click', function () {
+                // 取得按鈕上的文字，trim() 可以去掉前後空白。
+                let value = buttons[i].textContent.trim();
+                // 如果按鈕內有刪除圖示，因為圖示沒有文字，所以用位置判斷。
+                if (i === 0) {
+                    // 執行刪除功能。
+                    backspace();
+                // 如果按下 AC。
+                } else if (value === 'AC') {
+                    // 清除全部。
+                    clearAll();
+                // 如果按下百分比。
+                } else if (value === '%') {
+                    // 將目前數字除以 100。
+                    percent();
+                // 如果按下正負圖示，因為圖示沒有文字，所以用位置判斷。
+                } else if (i === 16) {
+                    // 切換正負號。
+                    changeSign();
+                // 如果按下小數點。
+                } else if (value === '.') {
+                    // 輸入小數點。
+                    inputDot();
+                // 如果按下等於。
+                } else if (value === '=') {
+                    // 計算答案。
+                    pressEqual();
+                // 如果按下四則運算符號。
+                } else if (value === '+' || value === '-' || value === '×' || value === '÷') {
+                    // 記錄符號，並視需要先計算前面的結果。
+                    inputSymbol(value);
+                // 如果按鈕上的文字是 0 到 9 的數字。
+                } else if (value >= '0' && value <= '9' && value.length === 1) {
+                    // 將這個數字輸入畫面。
+                    inputNumber(value);
+                }
+            // 結束按鈕點擊事件。
+            });
+        }
     </script>
 </body>
 
